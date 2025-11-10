@@ -47,6 +47,9 @@ group :development, :test do
   gem "mysql2", "~> 0.5"
 
   gem "debug", platforms: %i[ mri windows ]
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
+  gem 'faker'
 end
 
 group :development do
