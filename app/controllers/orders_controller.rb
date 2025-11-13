@@ -1,6 +1,7 @@
 class OrdersController < ApplicationController
   before_action :authenticate_user!
   before_action :set_item, only: [:index, :create]
+  before_action :redirect_if_sold_out_or_owner, only: [:index, :create]
 
   def index
     @order_address = OrderAddress.new
@@ -25,5 +26,9 @@ class OrdersController < ApplicationController
   def order_params
     params.require(:order_address).permit(:postal_code, :prefecture_id, :city, :address, :building, :phone_number).merge(
       user_id: current_user.id, item_id: params[:item_id])
+  end
+
+  def redirect_if_sold_out_or_owner
+    redirect_to root_path if @item.order.present? || current_user.id == @item.user_id
   end
 end
