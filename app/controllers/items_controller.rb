@@ -1,10 +1,11 @@
 class ItemsController < ApplicationController
-  before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_item, only: [:show, :edit, :update]
-  before_action :authorize_user!, only: [:edit, :update]
+  before_action :authenticate_user!, except: [:index, :show]
+  before_action :set_item, only: [:show, :edit, :update, :destroy]
+  before_action :redirect_if_not_owner, only: [:edit, :update, :destroy]
+  before_action :redirect_if_sold_out, only: [:edit, :update]
 
   def index
-    @items = Item.all.order('created_at DESC')
+    @items = Item.includes(:order).order('created_at DESC')
   end
 
   def new
@@ -35,8 +36,7 @@ class ItemsController < ApplicationController
   end
 
   def destroy
-    item = Item.find(params[:id])
-    item.destroy if current_user.id == item.user_id
+    @item.destroy
     redirect_to root_path
   end
 
@@ -51,7 +51,11 @@ class ItemsController < ApplicationController
     @item = Item.find(params[:id])
   end
 
-  def authorize_user!
+  def redirect_if_not_owner
     redirect_to root_path unless current_user.id == @item.user_id
+  end
+
+  def redirect_if_sold_out
+    redirect_to root_path if @item.order.present?
   end
 end
