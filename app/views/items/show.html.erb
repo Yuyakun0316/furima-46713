@@ -24,11 +24,13 @@
     </div>
 
     <% if user_signed_in? %>
-      <% if current_user.id == @item.user_id %>
-    <%= link_to "商品の編集", edit_item_path(@item.id), class: "item-red-btn" %>
-    <p class="or-text">or</p>
-    <%= link_to "削除", item_path(@item.id), data: { turbo_method: :delete }, class: "item-destroy" %>
-    <% else %>
+      <%# 出品者であり、かつ未売却の場合に「編集」「削除」ボタンを表示 %>
+      <% if current_user.id == @item.user_id && @item.order.nil? %>
+        <%= link_to "商品の編集", edit_item_path(@item.id), class: "item-red-btn" %>
+        <p class="or-text">or</p>
+        <%= link_to "削除", item_path(@item.id), data: { turbo_method: :delete }, class: "item-destroy" %>
+      <%# 出品者以外で、かつ未売却の場合に「購入」ボタンを表示 %>
+      <% elsif @item.order.nil? %>
       <% unless @item.order.present? %>
         <%= link_to "購入画面に進む", item_orders_path(@item.id), data: { turbo: false }, class:"item-red-btn"%>
       <% end %>
